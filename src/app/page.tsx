@@ -7,7 +7,7 @@ import { useLoading } from "@/hooks/useLoading";
 import OutboundLink from "@/component/OutboundLink";
 import AudioPlayer from "@/component/AudioPlayer";
 import { Niconico } from "@/component/icons";
-import { API_URL, LOCOSSIC_URL, GUIDELINE_URL, ICON_URL } from "@/config";
+import { API_URL, SOUND_URL, GUIDELINE_URL, ICON_URL } from "@/config";
 
 type MusicData = {
   number: number;
@@ -95,7 +95,7 @@ export default function Home() {
       Cell: ({ cell }) => {
         const { number, show } = cell.row.original;
         const filename = number.toString().padStart(3, "0").replace(".", "_");
-        const url = `${LOCOSSIC_URL}/audio/${filename}.mp3`;
+        const url = `${SOUND_URL}/trial/${filename}.mp3`;
         return (
           <>
             {show.trial ? (
