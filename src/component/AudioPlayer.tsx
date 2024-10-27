@@ -6,17 +6,32 @@ type Props = {
   src: string;
   playing: boolean;
   onClick: () => void;
+  onEnded: () => void;
 };
 
-const AudioPlayer = ({ src, playing, onClick }: Props) => {
+const AudioPlayer = ({ src, playing, onClick, onEnded }: Props) => {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const progressBarRef = useRef<HTMLElement>(null);
   const playingRef = useRef(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const progressWidth = 80;
 
   const handleEnded = () => {
     onClick();
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
+    }
+    onEnded();
+  };
+
+  const handleClickProgress = (e: React.MouseEvent) => {
+    const clickedX = e.clientX;
+    const elementX = progressBarRef.current?.getBoundingClientRect().left || 0;
+    const x = clickedX - elementX;
+    const time = (audioRef.current?.duration || 0) * x / progressWidth;
+    setCurrentTime(time);
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
     }
   };
 
@@ -57,11 +72,14 @@ const AudioPlayer = ({ src, playing, onClick }: Props) => {
             )}
           </>
         </IconButton>
-        <LinearProgress
-          variant="determinate"
-          value={100 * currentTime / (audioRef.current?.duration || 1)}
-          sx={{ width: 80, height: 8, mt: 2 }}
-        />
+        <Box id="progress" ref={progressBarRef}>
+          <LinearProgress
+            variant="determinate"
+            value={100 * currentTime / (audioRef.current?.duration || 1)}
+            sx={{ width: progressWidth, height: 8, mt: 2 }}
+            onClick={handleClickProgress}
+          />
+        </Box>
       </Box>
     </>
   );

@@ -1,6 +1,17 @@
 "use client"
 import { useState, useEffect, useRef } from "react";
-import { Avatar, Box, Button, Grid2 as Grid, Paper, Popper, Typography } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Grid2 as Grid,
+  Paper,
+  Popper,
+  Typography
+} from "@mui/material";
 import { YouTube, Google, X } from "@mui/icons-material";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from "material-react-table";
 import { useLoading } from "@/hooks/useLoading";
@@ -47,6 +58,7 @@ export default function Home() {
   const { setLoading } = useLoading();
   const [musicData, setMusicData] = useState<MusicData[]>([]);
   const [playFlags, setPlayFlags] = useState<{ [k: number]: boolean }>({});
+  const [continuous, setContinuous] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -81,6 +93,17 @@ export default function Home() {
     }
   };
 
+  const handlePlayEnded = (n: number) => {
+    if (!continuous) return;
+    const playerIds = table.getSortedRowModel().rows
+                           .filter((row) => row.original.show.trial)
+                           .map((row) => row.original.number);
+    const nextId = playerIds[playerIds.indexOf(n) + 1];
+    if (nextId) {
+      handleChangeFlag(nextId);
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -103,6 +126,7 @@ export default function Home() {
                 src={url}
                 playing={playFlags[number]}
                 onClick={() => handleChangeFlag(number)}
+                onEnded={() => handlePlayEnded(number)}
               />
             ) : (
               <></>
@@ -266,7 +290,7 @@ export default function Home() {
   ];
 
   return (
-    <Grid container spacing={5} alignItems="center" sx={{ m: 5, justifyContent: "center" }}>
+    <Grid container spacing={5} alignItems="center" sx={{ m: 5, minWidth: 800 }}>
       <Grid size={12}>
         <Typography variant="h4" sx={{ textAlign: "center" }}>
           てぃみ*れの / みるふぃ の簡易版ページ
@@ -344,6 +368,15 @@ export default function Home() {
         <Typography variant="h5" sx={{ mb: 1 }}>
           楽曲リスト
         </Typography>
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Checkbox checked={continuous} />
+            }
+            label="連続再生"
+            onClick={() => setContinuous(!continuous)}
+          />
+        </FormGroup>
         <MaterialReactTable table={table} />
       </Grid>
     </Grid>
