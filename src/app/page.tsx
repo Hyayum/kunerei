@@ -276,27 +276,27 @@ export default function Home() {
         <Typography variant="h6" sx={{ mb: 1 }}>
           名義の使い分け
         </Typography>
-        <Typography variant="subtitle1">
+        <Typography variant="body1">
           てぃみ*れの：主にボカロ曲で使っているHN
         </Typography>
-        <Typography variant="subtitle1">
+        <Typography variant="body1">
           みるふぃ：主に東方アレンジで使っているHN
         </Typography>
-        <Typography variant="subtitle2" sx={{ mt: 1 }}>
+        <Typography variant="body2" sx={{ mt: 1 }}>
           その他：こよにり(原神)、にゆつぇん(鳴潮) など
         </Typography>
       </Grid>
 
-      <Grid size={5}>
+      <Grid size={{ xs: 12, lg: 5 }}>
         <Typography variant="h6">
           プロフィール
         </Typography>
         <Avatar src={ICON_URL} />
-        <Typography variant="subtitle2" sx={{ mb: 1 }}>
+        <Typography variant="body2" sx={{ mb: 1 }}>
           ↑現在使用中のアイコン
         </Typography>
         {profile.split("\n").map((line, i) => (
-          <Typography variant="subtitle2" key={i}>
+          <Typography variant="body2" key={i}>
             {line}
           </Typography>
         ))}
@@ -307,7 +307,7 @@ export default function Home() {
         </OutboundLink>
       </Grid>
 
-      <Grid size={7}>
+      <Grid size="grow">
         <Typography variant="h6">
           Links
         </Typography>
@@ -333,7 +333,7 @@ export default function Home() {
                 {work.label}
               </Button>
             </OutboundLink>
-            <Typography variant="subtitle2" sx={{ ml: 2, mb: 1 }}>
+            <Typography variant="body2" sx={{ ml: 2, mb: 1 }}>
               {work.description}
             </Typography>
           </Box>
