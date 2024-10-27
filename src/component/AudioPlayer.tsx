@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from "react";
-import { Box, IconButton, LinearProgress } from "@mui/material";
+import { Box, CircularProgress, IconButton, LinearProgress } from "@mui/material";
 import { PlayArrow, Pause } from "@mui/icons-material";
 
 type Props = {
@@ -14,6 +14,7 @@ const AudioPlayer = ({ src, playing, onClick, onEnded }: Props) => {
   const progressBarRef = useRef<HTMLElement>(null);
   const playingRef = useRef(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const [loading, setLoading] = useState(false);
   const progressWidth = 80;
 
   const handleEnded = () => {
@@ -37,7 +38,8 @@ const AudioPlayer = ({ src, playing, onClick, onEnded }: Props) => {
 
   useEffect(() => {
     if (playing) {
-      audioRef.current?.play();
+      setLoading(true);
+      audioRef.current?.play().then(() => setLoading(false));
     } else {
       audioRef.current?.pause();
     }
@@ -63,16 +65,20 @@ const AudioPlayer = ({ src, playing, onClick, onEnded }: Props) => {
         onEnded={handleEnded}
       />
       <Box sx={{ display: "flex" }}>
-        <IconButton onClick={onClick} sx={{ ml: -2 }}>
-          <>
-            {playing ? (
-              <Pause />
-            ) : (
-              <PlayArrow />
-            )}
-          </>
-        </IconButton>
-        <Box id="progress" ref={progressBarRef}>
+        <Box sx={{ ml: -2, width: 35 }}>
+          <IconButton onClick={() => {if (!loading) onClick();}}>
+            <>
+              {loading ? (
+                <CircularProgress size={20} />
+              ) : playing ? (
+                <Pause />
+              ) : (
+                <PlayArrow />
+              )}
+            </>
+          </IconButton>
+        </Box>
+        <Box ref={progressBarRef}>
           <LinearProgress
             variant="determinate"
             value={100 * currentTime / (audioRef.current?.duration || 1)}
