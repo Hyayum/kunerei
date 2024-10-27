@@ -283,14 +283,14 @@ export default function Home() {
       description: "独自の音楽理論「#てぃみ式」を基にコードの情報を入力して再生したり解析したりできるツール",
     },
     {
-      label: "だれでもペユドチ",
-      url: "http://locossic.starfree.jp/memo_view?id=56",
-      description: "だれでもペユドチができるツール (文字ごとに確率が設定された状態でランダムに文字列を生成できるツール)",
+      label: "ペユドチ生成機",
+      url: "/peyudochi",
+      description: "だれでもペユドチができるツール (文字ごとに確率を設定してランダムに文字列を生成できるツール)",
     },
   ];
 
   return (
-    <Grid container spacing={5} alignItems="center" sx={{ m: 5, minWidth: 800 }}>
+    <Grid container spacing={5} sx={{ m: 5, minWidth: 800 }}>
       <Grid size={12}>
         <Typography variant="h4" sx={{ textAlign: "center" }}>
           てぃみ*れの / みるふぃ の簡易版ページ
@@ -371,10 +371,9 @@ export default function Home() {
         <FormGroup>
           <FormControlLabel
             control={
-              <Checkbox checked={continuous} />
+              <Checkbox checked={continuous} onClick={() => setContinuous(!continuous)} />
             }
             label="連続再生"
-            onClick={() => setContinuous(!continuous)}
           />
         </FormGroup>
         <MaterialReactTable table={table} />
