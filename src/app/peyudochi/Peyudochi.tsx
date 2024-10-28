@@ -10,9 +10,11 @@ import {
   FormControlLabel,
   FormGroup,
   Grid2 as Grid,
-  Typography
+  TextField,
+  Typography,
 } from "@mui/material";
 import Link from "next/link";
+import OutBoundLink from "@/component/OutboundLink";
 import NumberField from "@/component/NumberField";
 
 type LetterOption = {
@@ -221,6 +223,7 @@ export default function Peyudochi() {
   const [letters, setLetters] = useState(7);
   const [outputs, setOutputs] = useState(100);
   const [katakana, setKatakana] = useState(false);
+  const [share, setShare] = useState("");
   
   const changeOption = (letter: string, weight: number) => {
     const index = options.findIndex((opt) => opt.letter == letter);
@@ -261,15 +264,18 @@ export default function Peyudochi() {
     }
     setResult(results);
   };
+  
+  const shareText = `${share}${"\n"}#だれでもペユドチ${"\n"}https://hyayum.github.io/kunerei/peyudochi`;
+  const shareQuery = new URLSearchParams({ text: shareText });
 
   return (
     <>
-    <Link href={"/"} passHref>
+    <Link href={"/"} passHref style={{ position: "absolute", top: 20, left: 20 }}>
       <Button variant="text">
         TOPへ
       </Button>
     </Link>
-    <Grid container spacing={5} sx={{ m: 5, minWidth: 800 }}>
+    <Grid container spacing={5} sx={{ m: 5, mb: 20, minWidth: 800 }}>
       <Grid size={12}>
         <Typography variant="h4" sx={{ textAlign: "center" }}>
           ペユドチ生成機
@@ -345,12 +351,33 @@ export default function Peyudochi() {
         <Grid container spacing={2}>
           {result.map((res, i) => (
             <Grid size={{ xs: 4, sm: 3, lg: 2 }} key={i}>
-              <Typography>
+              <Typography variant="body1" onClick={() => setShare(res)}>
                 {res}
               </Typography>
             </Grid>
           ))}
         </Grid>
+      </Grid>
+      <Grid size={12}>
+        <Typography variant="body1" sx={{ mb: 1 }}>
+          気に入った単語をクリックしてシェア！少しいじってもOK！
+        </Typography>
+        <Box sx={{ display: "flex" }}>
+          <TextField
+            size="small"
+            variant="outlined"
+            value={share}
+            onChange={(e) => setShare(e.target.value)}
+          />
+          <OutBoundLink href={`https://twitter.com/intent/tweet?${shareQuery.toString()}`}>
+            <Button
+              size="large"
+              variant="text"
+            >
+              Xにシェア
+            </Button>
+          </OutBoundLink>
+        </Box>
       </Grid>
     </Grid>
     </>

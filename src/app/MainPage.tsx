@@ -296,7 +296,7 @@ export default function Home({ musicData }: { musicData: MusicData[] }) {
 
   return (
     <>
-    <Grid container spacing={5} sx={{ m: 5, minWidth: 800 }}>
+    <Grid container spacing={5} sx={{ m: 5, mb: 10, minWidth: 800 }}>
       <Grid size={12}>
         <Typography variant="h4" sx={{ textAlign: "center" }}>
           てぃみ*れの / みるふぃ の簡易版ページ
@@ -415,7 +415,7 @@ const TitlePopper = ({ title, pronounce }: { title: string, pronounce: string })
         placement="top-start"
       >
         <Paper elevation={3} sx={{ p: 1 }}>
-          <Typography variant="subtitle2">
+          <Typography variant="body2">
             {pronounce}
           </Typography>
         </Paper>
