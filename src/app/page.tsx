@@ -488,14 +488,14 @@ const Lyrics = ({
           )}
         </Grid>
         <Grid size={12}>
-          {lyricsParts.map((part) => {
+          {lyricsParts.map((part, i) => {
             const match = part.match(/\/\-(.*?)\-\-(.*?)\-\//);
             if (match && match[1] == "mk") {
               return show.mk && (<>{"\n"}{match[2]}</>);
             } else if (match && match[1] == "rb") {
-              return show.rb && (<span style={{ fontSize: 11 }}>{match[2]}</span>);
+              return show.rb && (<span style={{ fontSize: 11 }} key={i}>{match[2]}</span>);
             } else if (match && match[1] == "wh") {
-              return (<span style={{ fontSize: 11, color: "#fffff0" }}>{match[2]}</span>);
+              return (<span style={{ fontSize: 11, color: "#fffff0" }} key={i}>{match[2]}</span>);
             } else if (match) {
               return show[match[1]] && (<>{match[2]}</>);
             } else {
