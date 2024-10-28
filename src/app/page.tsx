@@ -494,6 +494,8 @@ const Lyrics = ({
               return show.mk && (<>{"\n"}{match[2]}</>);
             } else if (match && match[1] == "rb") {
               return show.rb && (<span style={{ fontSize: 11 }}>{match[2]}</span>);
+            } else if (match && match[1] == "wh") {
+              return (<span style={{ fontSize: 11, color: "#fffff0" }}>{match[2]}</span>);
             } else if (match) {
               return show[match[1]] && (<>{match[2]}</>);
             } else {
