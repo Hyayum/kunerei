@@ -9,6 +9,7 @@ import {
   FormControlLabel,
   FormGroup,
   Grid2 as Grid,
+  LinearProgress,
   Paper,
   Popper,
   Typography
@@ -60,8 +61,10 @@ export default function Home() {
   const [playFlags, setPlayFlags] = useState<{ [k: number]: boolean }>({});
   const [continuous, setContinuous] = useState(false);
   const [showLyrics, setShowLyrics] = useState(-1);
+  const [loadingTable, setLoadingTable] = useState(false);
 
   const fetchData = async () => {
+    setLoadingTable(true);
     try {
       const response = await fetch(API_URL);
       const data: MusicData[] = await response.json();
@@ -76,6 +79,7 @@ export default function Home() {
     } catch (e) {
       console.log(e);
     }
+    setLoadingTable(false);
   };
 
   const handleChangeFlag = (n: number) => {
@@ -407,6 +411,7 @@ export default function Home() {
           />
         </FormGroup>
         <MaterialReactTable table={table} />
+        {loadingTable && (<LinearProgress sx={{ width: "100%" }} />)}
       </Grid>
     </Grid>
     <Lyrics
@@ -459,7 +464,7 @@ const Lyrics = ({
     vc: true,
     rb: true
   });
-  const lyricsParts = lyrics.split(/(\/\-.*?\-\/)/);
+  const lyricsParts = lyrics.split(/(\/\-.+?\-\-[\s\S]+?\-\/)/);
   return (
     <Dialog open={open} onClose={onClose}>
       <Grid container spacing={2} sx={{ p: 3, whiteSpace: "pre-wrap" }}>
@@ -489,18 +494,22 @@ const Lyrics = ({
         </Grid>
         <Grid size={12}>
           {lyricsParts.map((part, i) => {
-            const match = part.match(/\/\-(.*?)\-\-(.*?)\-\//);
+            const match = part.match(/\/\-(.*?)\-\-([\s\S]*?)\-\//);
+            let flag = true;
+            let style = {};
+            let text = match?.[2] || part;
             if (match && match[1] == "mk") {
-              return show.mk && (<>{"\n"}{match[2]}</>);
+              flag = show.mk;
+              text = "\n" + text;
             } else if (match && match[1] == "rb") {
-              return show.rb && (<span style={{ fontSize: 11 }} key={i}>{match[2]}</span>);
+              flag = show.rb;
+              style = { fontSize: 11 };
             } else if (match && match[1] == "wh") {
-              return (<span style={{ fontSize: 11, color: "#fffff0" }} key={i}>{match[2]}</span>);
+              style = { color: "#fffff0" }
             } else if (match) {
-              return show[match[1]] && (<>{match[2]}</>);
-            } else {
-              return (<>{part}</>)
+              flag = show[match[1]];
             }
+            return flag && (<span style={style} key={i}>{text}</span>);
           })}
         </Grid>
       </Grid>
