@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Checkbox,
+  Dialog,
   FormControlLabel,
   FormGroup,
   Grid2 as Grid,
@@ -13,8 +14,8 @@ import {
   Typography
 } from "@mui/material";
 import { YouTube, Google, X } from "@mui/icons-material";
+import Link from "next/link";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from "material-react-table";
-import { useLoading } from "@/hooks/useLoading";
 import OutboundLink from "@/component/OutboundLink";
 import AudioPlayer from "@/component/AudioPlayer";
 import { Niconico } from "@/component/icons";
@@ -55,13 +56,12 @@ const getBgColor = (tag: string[]) => {
 };
 
 export default function Home() {
-  const { setLoading } = useLoading();
   const [musicData, setMusicData] = useState<MusicData[]>([]);
   const [playFlags, setPlayFlags] = useState<{ [k: number]: boolean }>({});
   const [continuous, setContinuous] = useState(false);
+  const [showLyrics, setShowLyrics] = useState(-1);
 
   const fetchData = async () => {
-    setLoading(true);
     try {
       const response = await fetch(API_URL);
       const data: MusicData[] = await response.json();
@@ -76,7 +76,6 @@ export default function Home() {
     } catch (e) {
       console.log(e);
     }
-    setLoading(false);
   };
 
   const handleChangeFlag = (n: number) => {
@@ -190,7 +189,25 @@ export default function Home() {
       ),
       minSize: 100,
     },
-    // ここに歌詞
+    {
+      header: "歌詞",
+      Cell: ({ cell }) => {
+        const { show, lyrics, number } = cell.row.original;
+        return (
+          <>
+            {show.lyrics && lyrics && (
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => setShowLyrics(number)}
+              >
+                歌詞
+              </Button>
+            )}
+          </>
+        );
+      },
+    },
     {
       header: "BPM",
       accessorKey: "bpm",
@@ -281,15 +298,18 @@ export default function Home() {
       label: "#てぃみ式 コードエディタ",
       url: "https://hyayum.github.io/chord_editor/",
       description: "独自の音楽理論「#てぃみ式」を基にコードの情報を入力して再生したり解析したりできるツール",
+      outbound: true,
     },
     {
       label: "ペユドチ生成機",
       url: "/peyudochi",
       description: "だれでもペユドチができるツール (文字ごとに確率を設定してランダムに文字列を生成できるツール)",
+      outbound: false,
     },
   ];
 
   return (
+    <>
     <Grid container spacing={5} sx={{ m: 5, minWidth: 800 }}>
       <Grid size={12}>
         <Typography variant="h4" sx={{ textAlign: "center" }}>
@@ -352,11 +372,21 @@ export default function Home() {
         </Typography>
         {works.map((work) => (
           <Box key={work.label}>
-            <OutboundLink href={work.url}>
-              <Button variant="text">
-                {work.label}
-              </Button>
-            </OutboundLink>
+            <>
+              {work.outbound ? (
+                <OutboundLink href={work.url}>
+                  <Button variant="text">
+                    {work.label}
+                  </Button>
+                </OutboundLink>
+              ) : (
+                <Link href={work.url} passHref>
+                  <Button variant="text">
+                    {work.label}
+                  </Button>
+                </Link>
+              )}
+            </>
             <Typography variant="body2" sx={{ ml: 2, mb: 1 }}>
               {work.description}
             </Typography>
@@ -379,6 +409,12 @@ export default function Home() {
         <MaterialReactTable table={table} />
       </Grid>
     </Grid>
+    <Lyrics
+      open={showLyrics > 0}
+      onClose={() => setShowLyrics(-1)}
+      lyrics={musicData.find((m) => m.number == showLyrics)?.lyrics || ""}
+    />
+    </>
   );
 }
 
@@ -406,5 +442,66 @@ const TitlePopper = ({ title, pronounce }: { title: string, pronounce: string })
         {title}
       </Box>
     </>
+  );
+};
+
+const Lyrics = ({
+  open,
+  onClose,
+  lyrics,
+}: {
+  open: boolean,
+  onClose: (b: boolean) => void,
+  lyrics: string,
+}) => {
+  const [show, setShow] = useState<{ [k: string]: boolean }>({
+    mk: true,
+    vc: true,
+    rb: true
+  });
+  const lyricsParts = lyrics.split(/(\/\-.*?\-\/)/);
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <Grid container spacing={2} sx={{ p: 3, whiteSpace: "pre-wrap" }}>
+        <Grid size={12}>
+          {open && (
+            <>
+              <FormGroup>
+                <FormControlLabel
+                  control={<Checkbox checked={show.mk} onClick={() => setShow({ ...show, mk: !show.mk })} />}
+                  label="マーカー(【Aメロ】など)を表示"
+                />
+              </FormGroup>
+              <FormGroup>
+                <FormControlLabel
+                  control={<Checkbox checked={show.vc} onClick={() => setShow({ ...show, vc: !show.vc })} />}
+                  label="パート分け(●◆など)を表示"
+                />
+              </FormGroup>
+              <FormGroup>
+                <FormControlLabel
+                  control={<Checkbox checked={show.rb} onClick={() => setShow({ ...show, rb: !show.rb })} />}
+                  label="ルビを表示"
+                />
+              </FormGroup>
+            </>
+          )}
+        </Grid>
+        <Grid size={12}>
+          {lyricsParts.map((part) => {
+            const match = part.match(/\/\-(.*?)\-\-(.*?)\-\//);
+            if (match && match[1] == "mk") {
+              return show.mk && (<>{"\n"}{match[2]}</>);
+            } else if (match && match[1] == "rb") {
+              return show.rb && (<span style={{ fontSize: 11 }}>{match[2]}</span>);
+            } else if (match) {
+              return show[match[1]] && (<>{match[2]}</>);
+            } else {
+              return (<>{part}</>)
+            }
+          })}
+        </Grid>
+      </Grid>
+    </Dialog>
   );
 };
