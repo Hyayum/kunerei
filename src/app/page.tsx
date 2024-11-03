@@ -4,7 +4,7 @@ import { API_URL } from "@/config";
 import { Suspense } from "react";
 
 export default async function Home() {
-  const response = await fetch(API_URL, { cache: "no-store" });
+  const response = await fetch(API_URL, { cache: "no-cache" });
   const data = await response.json();
   return (
     <ClientLayout>
