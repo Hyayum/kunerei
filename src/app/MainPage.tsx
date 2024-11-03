@@ -1,5 +1,5 @@
 "use client"
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Avatar,
@@ -10,6 +10,7 @@ import {
   FormControlLabel,
   FormGroup,
   Grid2 as Grid,
+  LinearProgress,
   Paper,
   Popper,
   Typography
@@ -20,7 +21,7 @@ import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from "m
 import OutboundLink from "@/component/OutboundLink";
 import AudioPlayer from "@/component/AudioPlayer";
 import { Niconico } from "@/component/icons";
-import { SOUND_URL, GUIDELINE_URL, ICON_URL } from "@/config";
+import { API_URL, SOUND_URL, GUIDELINE_URL, ICON_URL } from "@/config";
 
 type MusicData = {
   number: number;
@@ -56,7 +57,8 @@ const getBgColor = (tag: string[]) => {
   }
 };
 
-export default function Home({ musicData }: { musicData: MusicData[] }) {
+export default function Home() {
+  const [musicData, setMusicData] = useState<MusicData[]>([]);
   const flags: { [k: number]: boolean } = {};
   for (const music of musicData) {
     if (music.show.trial) {
@@ -67,6 +69,23 @@ export default function Home({ musicData }: { musicData: MusicData[] }) {
   const [playFlags, setPlayFlags] = useState(flags);
   const [continuous, setContinuous] = useState(false);
   const [showLyrics, setShowLyrics] = useState(Number(searchParams.get("lyrics")) || -1);
+  const [loading, setLoading] = useState(false);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(API_URL, { cache: "no-cache" });
+      const data = await response.json();
+      setMusicData(data);
+    } catch (e) {
+      console.log(e);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleChangeFlag = (n: number) => {
     const flag = !playFlags[n];
@@ -393,6 +412,7 @@ export default function Home({ musicData }: { musicData: MusicData[] }) {
           />
         </FormGroup>
         <MaterialReactTable table={table} />
+        {loading && (<LinearProgress sx={{ width: "100%" }} />)}
       </Grid>
     </Grid>
     <Lyrics
